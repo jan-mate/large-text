@@ -7,3 +7,4 @@ local.properties
 docs/
 CLAUDE.md
 .claude/
+keystore.properties
