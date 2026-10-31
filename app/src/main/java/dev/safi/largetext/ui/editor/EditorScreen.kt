@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,11 +14,11 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -59,7 +60,7 @@ fun EditorScreen(
     onTextChange: (TextFieldValue) -> Unit,
     onDisplay: () -> Unit,
     onResume: () -> Unit,
-    topBar: @Composable () -> Unit,
+    controls: @Composable () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -75,7 +76,6 @@ fun EditorScreen(
             Modifier.safeDrawingPadding().imePadding().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) { topBar() }
             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 ScaledToDisplay(
                     displaySize = displaySize,
@@ -100,13 +100,16 @@ fun EditorScreen(
                     }
                 }
             }
-            Button(
-                onClick = onDisplay,
-                shape = RectangleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Grey, contentColor = Color.White),
-                modifier = Modifier.fillMaxWidth().height(88.dp),
-            ) {
-                Text("Display", fontSize = 32.sp)
+            Row(Modifier.fillMaxWidth().height(88.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp)) { controls() }
+                TextButton(
+                    onClick = onDisplay,
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                ) {
+                    Text("Display", fontSize = 40.sp)
+                }
             }
         }
     }

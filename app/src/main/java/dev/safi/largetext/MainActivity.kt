@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                             onTextChange = viewModel::changeText,
                             onDisplay = { navController.navigate(DisplayRoute) },
                             onResume = viewModel::selectAll,
-                            topBar = {},
+                            controls = {},
                         )
                     }
                     composable<DisplayRoute> {
