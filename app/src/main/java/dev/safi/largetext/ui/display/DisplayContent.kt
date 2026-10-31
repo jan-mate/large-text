@@ -11,11 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import dev.safi.largetext.data.AppFont
 import dev.safi.largetext.data.DisplayTheme
+import dev.safi.largetext.data.RotationMode
 import dev.safi.largetext.ui.FittedBox
 import dev.safi.largetext.ui.fontFamily
 
@@ -61,5 +63,16 @@ fun ScaledToDisplay(displaySize: IntSize, modifier: Modifier = Modifier, content
                 content()
             }
         }
+    }
+}
+
+@Composable
+fun rememberDisplaySize(rotation: RotationMode): IntSize {
+    val windowSize = LocalWindowInfo.current.containerSize
+    val long = maxOf(windowSize.width, windowSize.height)
+    val short = minOf(windowSize.width, windowSize.height)
+    return when (rotation) {
+        RotationMode.Portrait -> IntSize(short, long)
+        RotationMode.Landscape, RotationMode.Auto -> IntSize(long, short)
     }
 }

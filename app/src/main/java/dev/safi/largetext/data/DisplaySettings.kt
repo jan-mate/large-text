@@ -4,12 +4,12 @@ enum class AppFont { Safi, Atkinson }
 
 enum class DisplayTheme { Dark, Light }
 
-enum class RotationMode { Landscape, Portrait, Auto }
+enum class RotationMode { Auto, Landscape, Portrait }
 
 data class Settings(
     val font: AppFont = AppFont.Safi,
     val theme: DisplayTheme = DisplayTheme.Dark,
-    val rotation: RotationMode = RotationMode.Landscape,
+    val rotation: RotationMode = RotationMode.Auto,
     val lastText: String = "",
 )
 

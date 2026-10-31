@@ -38,9 +38,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -50,6 +48,7 @@ import dev.safi.largetext.data.DisplayTheme
 import dev.safi.largetext.data.RotationMode
 import dev.safi.largetext.ui.display.DisplaySurface
 import dev.safi.largetext.ui.display.ScaledToDisplay
+import dev.safi.largetext.ui.display.rememberDisplaySize
 import dev.safi.largetext.ui.display.foreground
 
 private val Grey = Color(0xFF555555)
@@ -72,7 +71,7 @@ fun EditorScreen(
         keyboard?.show()
         onResume()
     }
-    val displaySize = previewDisplaySize(LocalWindowInfo.current.containerSize, rotation)
+    val displaySize = rememberDisplaySize(rotation)
 
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
@@ -118,14 +117,5 @@ fun EditorScreen(
                 }
             }
         }
-    }
-}
-
-private fun previewDisplaySize(windowSize: IntSize, rotation: RotationMode): IntSize {
-    val long = maxOf(windowSize.width, windowSize.height)
-    val short = minOf(windowSize.width, windowSize.height)
-    return when (rotation) {
-        RotationMode.Portrait -> IntSize(short, long)
-        RotationMode.Landscape, RotationMode.Auto -> IntSize(long, short)
     }
 }
