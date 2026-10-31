@@ -16,7 +16,7 @@ import dev.safi.largetext.data.Settings
 import dev.safi.largetext.data.SettingsRepository
 import dev.safi.largetext.data.next
 import dev.safi.largetext.data.withDisplayed
-import dev.safi.largetext.data.withPinToggled
+import dev.safi.largetext.data.withPinned
 import dev.safi.largetext.data.without
 import java.util.UUID
 import kotlinx.coroutines.flow.SharingStarted
@@ -89,12 +89,12 @@ class AppViewModel(
         display()
     }
 
-    fun togglePin(id: String) {
-        viewModelScope.launch { historyRepository.update { it.withPinToggled(id) } }
+    fun setPinned(ids: Set<String>, pinned: Boolean) {
+        viewModelScope.launch { historyRepository.update { it.withPinned(ids, pinned) } }
     }
 
-    fun delete(id: String) {
-        viewModelScope.launch { historyRepository.update { it.without(id) } }
+    fun delete(ids: Set<String>) {
+        viewModelScope.launch { historyRepository.update { it.without(ids) } }
     }
 
     private fun save() {

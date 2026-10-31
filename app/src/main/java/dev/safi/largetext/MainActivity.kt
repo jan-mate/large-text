@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel.display(entry)
                                 navController.navigate(DisplayRoute) { popUpTo(EditorRoute) }
                             },
-                            onTogglePin = viewModel::togglePin,
+                            onSetPinned = viewModel::setPinned,
                             onDelete = viewModel::delete,
                         )
                     }

@@ -94,8 +94,8 @@ class AppViewModelTest {
     fun pinAndDeleteUpdateHistory() {
         history.entries.value = listOf(HistoryEntry("a", "x", 1), HistoryEntry("b", "y", 2))
         val viewModel = viewModel()
-        viewModel.togglePin("a")
-        viewModel.delete("b")
+        viewModel.setPinned(setOf("a"), true)
+        viewModel.delete(setOf("b"))
         assertEquals(listOf(HistoryEntry("a", "x", 1, pinned = true)), history.entries.value)
     }
 }

@@ -60,9 +60,27 @@ class HistoryTest {
     }
 
     @Test
-    fun pinToggleAndDelete() {
-        val history = listOf(HistoryEntry("a", "x", 1), HistoryEntry("b", "y", 2))
-        assertEquals(listOf(HistoryEntry("a", "x", 1, pinned = true), HistoryEntry("b", "y", 2)), history.withPinToggled("a"))
-        assertEquals(listOf(HistoryEntry("b", "y", 2)), history.without("a"))
+    fun pinUnpinAndDeleteSeveral() {
+        val history = listOf(HistoryEntry("a", "x", 1), HistoryEntry("b", "y", 2), HistoryEntry("c", "z", 3, pinned = true))
+        assertEquals(listOf(true, true, true), history.withPinned(setOf("a", "b"), true).map { it.pinned })
+        assertEquals(listOf(false, false, false), history.withPinned(setOf("a", "c"), false).map { it.pinned })
+        assertEquals(listOf("b"), history.without(setOf("a", "c")).map { it.id })
+    }
+
+    @Test
+    fun searchMatchesContentIgnoringCase() {
+        val history = listOf(HistoryEntry("a", "Hello world", 1), HistoryEntry("b", "Gate 12", 2))
+        assertEquals(listOf("a"), history.matching("WORLD").map { it.id })
+        assertEquals(listOf("a", "b"), history.matching("").map { it.id })
+        assertEquals(emptyList<String>(), history.matching("xyz").map { it.id })
+    }
+
+    @Test
+    fun searchResultsAlwaysContainQuery() = runBlocking<Unit> {
+        checkAll(200, histories, Arb.element(listOf("", "text", "1", "TEXT2", "9"))) { history, query ->
+            val result = history.matching(query)
+            assertTrue(result.all { it.text.contains(query, ignoreCase = true) })
+            assertEquals(history.count { it.text.contains(query, ignoreCase = true) }, result.size)
+        }
     }
 }
