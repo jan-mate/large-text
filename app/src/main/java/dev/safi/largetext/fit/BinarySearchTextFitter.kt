@@ -4,11 +4,13 @@ class BinarySearchTextFitter(
     private val measure: TextMeasure,
     private val minFontSize: Float = 1f,
     private val precision: Float = 0.5f,
+    private val minGainToBreakWords: Float = 2f,
 ) : TextFitter {
-    override fun fit(text: String, boxWidth: Float, boxHeight: Float): Float =
-        largestFitting(text, boxWidth, boxHeight, allowBreak = false)
-            ?: largestFitting(text, boxWidth, boxHeight, allowBreak = true)
-            ?: minFontSize
+    override fun fit(text: String, boxWidth: Float, boxHeight: Float): Float {
+        val broken = largestFitting(text, boxWidth, boxHeight, allowBreak = true) ?: return minFontSize
+        val whole = largestFitting(text, boxWidth, boxHeight, allowBreak = false)
+        return if (whole == null || broken >= whole * minGainToBreakWords) broken else whole
+    }
 
     private fun largestFitting(text: String, boxWidth: Float, boxHeight: Float, allowBreak: Boolean): Float? {
         fun fits(fontSize: Float): Boolean {

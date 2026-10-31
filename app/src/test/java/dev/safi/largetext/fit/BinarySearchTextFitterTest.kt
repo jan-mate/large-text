@@ -29,29 +29,63 @@ class BinarySearchTextFitterTest {
         return result.width <= width && result.height <= height && (allowBreak || !result.brokeMidWord)
     }
 
+    private val wholeWordsOnly = BinarySearchTextFitter(measure, minGainToBreakWords = Float.POSITIVE_INFINITY)
+    private val breaksAlways = BinarySearchTextFitter(measure, minGainToBreakWords = 0f)
+
     @Test
-    fun resultAlwaysFitsWithoutBreakingWords() = runBlocking<Unit> {
+    fun resultAlwaysFits() = runBlocking<Unit> {
         checkAll(200, texts, sides, sides) { text, width, height ->
             val size = fitter.fit(text, width, height)
-            assertTrue(fits(text, size, width, height, allowBreak = false))
+            assertTrue(fits(text, size, width, height, allowBreak = true))
         }
     }
 
     @Test
-    fun resultIsTheLargestSizeThatFits() = runBlocking<Unit> {
+    fun breaksWordsOnlyWhenTextGetsMuchLarger() = runBlocking<Unit> {
         checkAll(200, texts, sides, sides) { text, width, height ->
-            val size = fitter.fit(text, width, height)
+            val whole = wholeWordsOnly.fit(text, width, height)
+            val broken = breaksAlways.fit(text, width, height)
+            val expected = if (broken >= whole * 2f) broken else whole
+            assertEquals(expected, fitter.fit(text, width, height), 0f)
+        }
+    }
+
+    @Test
+    fun wholeWordResultIsTheLargestSizeThatFits() = runBlocking<Unit> {
+        checkAll(200, texts, sides, sides) { text, width, height ->
+            val size = wholeWordsOnly.fit(text, width, height)
+            assertTrue(fits(text, size, width, height, allowBreak = false))
             assertFalse(fits(text, size + 0.5f, width, height, allowBreak = false))
         }
     }
 
     @Test
-    fun singleWordFillsTheWidth() {
-        assertEquals(100f / (0.6f * 5), fitter.fit("hello", 100f, 1000f), 0.5f)
+    fun longWordInAWideBoxIsBroken() {
+        val word = "donaudampfschifffahrtsgesellschaft"
+        val size = fitter.fit(word, 1000f, 500f)
+        assertFalse(fits(word, size, 1000f, 500f, allowBreak = false))
     }
 
     @Test
-    fun breaksMidWordOnlyWhenNothingElseFits() {
+    fun sentenceKeepsWholeWords() {
+        val sentence = "the bus to the central station leaves from platform seven"
+        val size = fitter.fit(sentence, 1000f, 500f)
+        assertTrue(fits(sentence, size, 1000f, 500f, allowBreak = false))
+    }
+
+    @Test
+    fun singleWordFillsTheWidth() {
+        assertEquals(100f / (0.6f * 5), fitter.fit("hello", 100f, 40f), 0.5f)
+    }
+
+    @Test
+    fun shortWordInATallBoxIsNotBroken() {
+        val size = fitter.fit("hello", 1080f, 2400f)
+        assertTrue(fits("hello", size, 1080f, 2400f, allowBreak = false))
+    }
+
+    @Test
+    fun breaksMidWordWhenNothingElseFits() {
         val tiny = BinarySearchTextFitter(measure, minFontSize = 10f)
         val size = tiny.fit("abcdefghijklmnopqrstuvwxyz", 60f, 1000f)
         assertTrue(fits("abcdefghijklmnopqrstuvwxyz", size, 60f, 1000f, allowBreak = true))
