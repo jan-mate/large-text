@@ -44,20 +44,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import dev.safi.largetext.data.AppFont
-import dev.safi.largetext.data.DisplayTheme
+import dev.safi.largetext.data.DisplayColors
 import dev.safi.largetext.data.RotationMode
 import dev.safi.largetext.ui.display.DisplaySurface
 import dev.safi.largetext.ui.display.ScaledToDisplay
 import dev.safi.largetext.ui.display.rememberDisplaySize
-import dev.safi.largetext.ui.display.foreground
-
-private val Grey = Color(0xFF555555)
+import dev.safi.largetext.ui.display.textColor
+import dev.safi.largetext.ui.OutlineGrey
 
 @Composable
 fun EditorScreen(
     text: TextFieldValue,
     font: AppFont,
-    theme: DisplayTheme,
+    colors: DisplayColors,
     rotation: RotationMode,
     onTextChange: (TextFieldValue) -> Unit,
     onDisplay: () -> Unit,
@@ -83,16 +82,16 @@ fun EditorScreen(
                     displaySize = displaySize,
                     modifier = Modifier
                         .aspectRatio(displaySize.width.toFloat() / displaySize.height)
-                        .border(1.dp, Grey),
+                        .border(1.dp, OutlineGrey),
                 ) {
-                    val selectionColors = TextSelectionColors(theme.foreground, theme.foreground.copy(alpha = 0.3f))
+                    val selectionColors = TextSelectionColors(colors.textColor, colors.textColor.copy(alpha = 0.3f))
                     CompositionLocalProvider(LocalTextSelectionColors provides selectionColors) {
-                        DisplaySurface(text.text, font, theme) { style, textModifier ->
+                        DisplaySurface(text.text, font, colors) { style, textModifier ->
                             BasicTextField(
                                 value = text,
                                 onValueChange = onTextChange,
                                 textStyle = style,
-                                cursorBrush = SolidColor(theme.foreground),
+                                cursorBrush = SolidColor(colors.textColor),
                                 modifier = textModifier
                                     .focusRequester(focusRequester)
                                     .onPreviewKeyEvent {

@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.reorderable)
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.ui)

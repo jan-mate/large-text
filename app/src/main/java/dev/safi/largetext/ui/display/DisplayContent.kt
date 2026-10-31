@@ -16,36 +16,36 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import dev.safi.largetext.data.AppFont
-import dev.safi.largetext.data.DisplayTheme
+import dev.safi.largetext.data.DisplayColors
 import dev.safi.largetext.data.RotationMode
 import dev.safi.largetext.ui.FittedBox
 import dev.safi.largetext.ui.fontFamily
 
-val DisplayTheme.foreground: Color
-    get() = if (this == DisplayTheme.Dark) Color.White else Color.Black
+val DisplayColors.textColor: Color
+    get() = Color(text)
 
-val DisplayTheme.background: Color
-    get() = if (this == DisplayTheme.Dark) Color.Black else Color.White
+val DisplayColors.backgroundColor: Color
+    get() = Color(background)
 
 @Composable
 fun DisplaySurface(
     text: String,
     font: AppFont,
-    theme: DisplayTheme,
+    colors: DisplayColors,
     modifier: Modifier = Modifier,
     content: @Composable (fittedStyle: TextStyle, textModifier: Modifier) -> Unit,
 ) {
     FittedBox(
         text = text,
-        style = TextStyle(fontFamily = font.fontFamily, textAlign = TextAlign.Center, color = theme.foreground),
-        modifier = modifier.fillMaxSize().background(theme.background),
+        style = TextStyle(fontFamily = font.fontFamily, textAlign = TextAlign.Center, color = colors.textColor),
+        modifier = modifier.fillMaxSize().background(colors.backgroundColor),
         content = content,
     )
 }
 
 @Composable
-fun DisplayContent(text: String, font: AppFont, theme: DisplayTheme, modifier: Modifier = Modifier) {
-    DisplaySurface(text, font, theme, modifier) { style, textModifier ->
+fun DisplayContent(text: String, font: AppFont, colors: DisplayColors, modifier: Modifier = Modifier) {
+    DisplaySurface(text, font, colors, modifier) { style, textModifier ->
         Text(text, style = style, modifier = textModifier)
     }
 }

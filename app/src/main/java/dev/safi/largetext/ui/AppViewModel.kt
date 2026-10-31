@@ -8,9 +8,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.safi.largetext.data.AppFont
-import dev.safi.largetext.data.DisplayTheme
+import dev.safi.largetext.data.DisplayColors
 import dev.safi.largetext.data.HistoryEntry
-import dev.safi.largetext.data.HistoryRepository
+import dev.safi.largetext.data.ListRepository
+import dev.safi.largetext.data.moved
 import dev.safi.largetext.data.RotationMode
 import dev.safi.largetext.data.Settings
 import dev.safi.largetext.data.SettingsRepository
@@ -27,17 +28,17 @@ import kotlinx.coroutines.launch
 
 class AppViewModel(
     private val settingsRepository: SettingsRepository,
-    private val historyRepository: HistoryRepository,
+    private val historyRepository: ListRepository<HistoryEntry>,
     private val clock: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
     val history: StateFlow<List<HistoryEntry>> =
-        historyRepository.entries.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        historyRepository.items.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     var text by mutableStateOf(TextFieldValue(""))
         private set
     var font by mutableStateOf(Settings().font)
         private set
-    var theme by mutableStateOf(Settings().theme)
+    var colors by mutableStateOf(Settings().colors)
         private set
     var rotation by mutableStateOf(Settings().rotation)
         private set
@@ -46,7 +47,7 @@ class AppViewModel(
         viewModelScope.launch {
             val settings = settingsRepository.settings.first()
             font = settings.font
-            theme = settings.theme
+            colors = settings.colors
             rotation = settings.rotation
             text = TextFieldValue(settings.lastText, TextRange(0, settings.lastText.length))
         }
@@ -61,13 +62,19 @@ class AppViewModel(
         text = text.copy(selection = TextRange(0, text.text.length))
     }
 
-    fun toggleFont() {
-        font = font.next(AppFont.entries.toTypedArray())
+    fun chooseFont(value: AppFont) {
+        font = value
         save()
     }
 
-    fun toggleTheme() {
-        theme = theme.next(DisplayTheme.entries.toTypedArray())
+    fun setTextColor(color: Int) = applyColors(colors.copy(text = color))
+
+    fun setBackgroundColor(color: Int) = applyColors(colors.copy(background = color))
+
+    fun invertColors() = applyColors(colors.inverted())
+
+    fun applyColors(value: DisplayColors) {
+        colors = value
         save()
     }
 
@@ -93,12 +100,16 @@ class AppViewModel(
         viewModelScope.launch { historyRepository.update { it.withPinned(ids, pinned) } }
     }
 
+    fun moveHistory(fromId: String, toId: String) {
+        viewModelScope.launch { historyRepository.update { it.moved(fromId, toId) } }
+    }
+
     fun delete(ids: Set<String>) {
         viewModelScope.launch { historyRepository.update { it.without(ids) } }
     }
 
     private fun save() {
-        val settings = Settings(font, theme, rotation, text.text)
+        val settings = Settings(font, colors, rotation, text.text)
         viewModelScope.launch { settingsRepository.save(settings) }
     }
 }

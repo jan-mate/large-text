@@ -19,9 +19,13 @@ import dev.safi.largetext.ui.AppTheme
 import dev.safi.largetext.ui.AppViewModel
 import dev.safi.largetext.ui.display.DisplayScreen
 import dev.safi.largetext.ui.display.rememberDisplaySize
-import dev.safi.largetext.data.DataStoreHistoryRepository
+import dev.safi.largetext.data.ColorPresetSerializer
+import dev.safi.largetext.data.DataStoreListRepository
 import dev.safi.largetext.data.DataStoreSettingsRepository
 import dev.safi.largetext.data.HistorySerializer
+import dev.safi.largetext.ui.ColorPresetsViewModel
+import dev.safi.largetext.ui.color.ColorScreen
+import dev.safi.largetext.ui.font.FontScreen
 import dev.safi.largetext.ui.editor.EditorControls
 import dev.safi.largetext.ui.editor.EditorScreen
 import dev.safi.largetext.ui.history.HistoryScreen
@@ -29,6 +33,7 @@ import kotlinx.serialization.Serializable
 
 private val Context.settingsDataStore by preferencesDataStore("settings")
 private val Context.historyDataStore by dataStore("history.json", HistorySerializer)
+private val Context.colorPresetsDataStore by dataStore("color_presets.json", ColorPresetSerializer)
 
 @Serializable
 object EditorRoute
@@ -39,12 +44,26 @@ object DisplayRoute
 @Serializable
 object HistoryRoute
 
+@Serializable
+object FontRoute
+
+@Serializable
+object ColorRoute
+
 class MainActivity : ComponentActivity() {
     private val viewModel: AppViewModel by viewModels {
-        viewModelFactory { initializer { AppViewModel(
+        viewModelFactory {
+            initializer {
+                AppViewModel(
                     DataStoreSettingsRepository(applicationContext.settingsDataStore),
-                    DataStoreHistoryRepository(applicationContext.historyDataStore),
-                ) } }
+                    DataStoreListRepository(applicationContext.historyDataStore),
+                )
+            }
+        }
+    }
+
+    private val colorPresets: ColorPresetsViewModel by viewModels {
+        viewModelFactory { initializer { ColorPresetsViewModel(DataStoreListRepository(applicationContext.colorPresetsDataStore)) } }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +77,7 @@ class MainActivity : ComponentActivity() {
                         EditorScreen(
                             text = viewModel.text,
                             font = viewModel.font,
-                            theme = viewModel.theme,
+                            colors = viewModel.colors,
                             rotation = viewModel.rotation,
                             onTextChange = viewModel::changeText,
                             onDisplay = {
@@ -69,10 +88,11 @@ class MainActivity : ComponentActivity() {
                             controls = {
                                 EditorControls(
                                     font = viewModel.font,
+                                    colors = viewModel.colors,
                                     rotation = viewModel.rotation,
                                     onOpenHistory = { navController.navigate(HistoryRoute) },
-                                    onToggleFont = viewModel::toggleFont,
-                                    onToggleTheme = viewModel::toggleTheme,
+                                    onOpenFonts = { navController.navigate(FontRoute) },
+                                    onOpenColors = { navController.navigate(ColorRoute) },
                                     onCycleRotation = viewModel::cycleRotation,
                                 )
                             },
@@ -82,7 +102,7 @@ class MainActivity : ComponentActivity() {
                         HistoryScreen(
                             entries = viewModel.history.collectAsStateWithLifecycle().value,
                             font = viewModel.font,
-                            theme = viewModel.theme,
+                            colors = viewModel.colors,
                             displaySize = rememberDisplaySize(viewModel.rotation),
                             onOpen = { entry ->
                                 viewModel.display(entry)
@@ -90,13 +110,41 @@ class MainActivity : ComponentActivity() {
                             },
                             onSetPinned = viewModel::setPinned,
                             onDelete = viewModel::delete,
+                            onMove = viewModel::moveHistory,
+                        )
+                    }
+                    composable<FontRoute> {
+                        FontScreen(
+                            current = viewModel.font,
+                            colors = viewModel.colors,
+                            displaySize = rememberDisplaySize(viewModel.rotation),
+                            onChoose = { font ->
+                                viewModel.chooseFont(font)
+                                navController.popBackStack()
+                            },
+                        )
+                    }
+                    composable<ColorRoute> {
+                        ColorScreen(
+                            text = viewModel.text.text,
+                            font = viewModel.font,
+                            colors = viewModel.colors,
+                            presets = colorPresets.presets.collectAsStateWithLifecycle().value,
+                            displaySize = rememberDisplaySize(viewModel.rotation),
+                            onTextColor = viewModel::setTextColor,
+                            onBackgroundColor = viewModel::setBackgroundColor,
+                            onInvert = viewModel::invertColors,
+                            onApply = viewModel::applyColors,
+                            onPin = colorPresets::pin,
+                            onDelete = colorPresets::delete,
+                            onMove = colorPresets::move,
                         )
                     }
                     composable<DisplayRoute> {
                         DisplayScreen(
                             text = viewModel.text.text,
                             font = viewModel.font,
-                            theme = viewModel.theme,
+                            colors = viewModel.colors,
                             rotation = viewModel.rotation,
                             onExit = dropUnlessResumed { navController.popBackStack() },
                         )

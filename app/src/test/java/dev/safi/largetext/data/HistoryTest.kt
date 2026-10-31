@@ -30,9 +30,27 @@ class HistoryTest {
             val matching = result.filter { it.text == text }
             assertEquals(1, matching.size)
             assertEquals(5000L, matching.single().createdAt)
-            val section = result.filter { it.pinned == matching.single().pinned }
-            assertEquals(text, section.first().text)
+            val displayed = matching.single()
+            if (displayed.pinned) {
+                assertEquals(history.filter { it.pinned }.map { it.id }, result.filter { it.pinned }.map { it.id })
+            } else {
+                assertEquals(text, result.first { !it.pinned }.text)
+            }
         }
+    }
+
+    @Test
+    fun redisplayingPinnedKeepsItsPlace() {
+        val history = listOf(HistoryEntry("a", "first", 1, pinned = true), HistoryEntry("b", "second", 2, pinned = true))
+        val result = history.withDisplayed("second", now = 9, ::newId)
+        assertEquals(listOf("a", "b"), result.map { it.id })
+        assertEquals(9L, result[1].createdAt)
+    }
+
+    @Test
+    fun pinnedMoveById() {
+        val history = listOf(HistoryEntry("a", "x", 1, true), HistoryEntry("b", "y", 2, true), HistoryEntry("c", "z", 3))
+        assertEquals(listOf("b", "a", "c"), history.moved("a", "b").map { it.id })
     }
 
     @Test

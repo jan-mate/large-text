@@ -3,8 +3,8 @@ package dev.safi.largetext.ui
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import dev.safi.largetext.data.AppFont
-import dev.safi.largetext.data.DisplayTheme
-import dev.safi.largetext.data.FakeHistoryRepository
+import dev.safi.largetext.data.DisplayColors
+import dev.safi.largetext.data.FakeListRepository
 import dev.safi.largetext.data.FakeSettingsRepository
 import dev.safi.largetext.data.HistoryEntry
 import dev.safi.largetext.data.RotationMode
@@ -22,7 +22,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppViewModelTest {
     private val repository = FakeSettingsRepository(Settings(lastText = "saved"))
-    private val history = FakeHistoryRepository()
+    private val history = FakeListRepository<HistoryEntry>()
 
     private fun viewModel(settings: FakeSettingsRepository = repository) = AppViewModel(settings, history, clock = { 42L })
 
@@ -42,20 +42,39 @@ class AppViewModelTest {
 
     @Test
     fun loadsSavedSettingsWithTextSelected() {
-        val viewModel = viewModel(FakeSettingsRepository(Settings(AppFont.Atkinson, DisplayTheme.Light, RotationMode.Auto, "saved")))
+        val viewModel = viewModel(FakeSettingsRepository(Settings(AppFont.Atkinson, DisplayColors.BlackOnWhite, RotationMode.Auto, "saved")))
         assertEquals(AppFont.Atkinson, viewModel.font)
-        assertEquals(DisplayTheme.Light, viewModel.theme)
+        assertEquals(DisplayColors.BlackOnWhite, viewModel.colors)
         assertEquals(RotationMode.Auto, viewModel.rotation)
         assertEquals(TextFieldValue("saved", TextRange(0, 5)), viewModel.text)
     }
 
     @Test
-    fun togglesAreSaved() {
+    fun choicesAreSaved() {
         val viewModel = viewModel()
-        viewModel.toggleFont()
-        viewModel.toggleTheme()
+        viewModel.chooseFont(AppFont.Lora)
         viewModel.cycleRotation()
-        assertEquals(Settings(AppFont.Atkinson, DisplayTheme.Light, RotationMode.Landscape, "saved"), repository.settings.value)
+        viewModel.setTextColor(0xFFFFFF00.toInt())
+        viewModel.setBackgroundColor(0xFF0000FF.toInt())
+        val yellowOnBlue = DisplayColors(0xFFFFFF00.toInt(), 0xFF0000FF.toInt())
+        assertEquals(Settings(AppFont.Lora, yellowOnBlue, RotationMode.Landscape, "saved"), repository.settings.value)
+    }
+
+    @Test
+    fun invertAndApplyColorsAreSaved() {
+        val viewModel = viewModel()
+        viewModel.invertColors()
+        assertEquals(DisplayColors.BlackOnWhite, repository.settings.value.colors)
+        viewModel.applyColors(DisplayColors.WhiteOnBlack)
+        assertEquals(DisplayColors.WhiteOnBlack, repository.settings.value.colors)
+    }
+
+    @Test
+    fun movingPinnedHistory() {
+        history.items.value = listOf(HistoryEntry("a", "x", 1, true), HistoryEntry("b", "y", 2, true))
+        val viewModel = viewModel()
+        viewModel.moveHistory("a", "b")
+        assertEquals(listOf("b", "a"), history.items.value.map { it.id })
     }
 
     @Test
@@ -69,8 +88,8 @@ class AppViewModelTest {
     fun displayAddsTextToHistory() {
         val viewModel = viewModel()
         viewModel.display()
-        assertEquals(listOf("saved"), history.entries.value.map { it.text })
-        assertEquals(42L, history.entries.value.single().createdAt)
+        assertEquals(listOf("saved"), history.items.value.map { it.text })
+        assertEquals(42L, history.items.value.single().createdAt)
     }
 
     @Test
@@ -78,24 +97,24 @@ class AppViewModelTest {
         val viewModel = viewModel()
         viewModel.changeText(TextFieldValue("  "))
         viewModel.display()
-        assertEquals(emptyList<HistoryEntry>(), history.entries.value)
+        assertEquals(emptyList<HistoryEntry>(), history.items.value)
     }
 
     @Test
     fun displayingFromHistorySetsTextAndMovesItToTop() {
-        history.entries.value = listOf(HistoryEntry("b", "newer", 2), HistoryEntry("a", "older", 1))
+        history.items.value = listOf(HistoryEntry("b", "newer", 2), HistoryEntry("a", "older", 1))
         val viewModel = viewModel()
-        viewModel.display(history.entries.value[1])
+        viewModel.display(history.items.value[1])
         assertEquals("older", viewModel.text.text)
-        assertEquals(listOf("older", "newer"), history.entries.value.map { it.text })
+        assertEquals(listOf("older", "newer"), history.items.value.map { it.text })
     }
 
     @Test
     fun pinAndDeleteUpdateHistory() {
-        history.entries.value = listOf(HistoryEntry("a", "x", 1), HistoryEntry("b", "y", 2))
+        history.items.value = listOf(HistoryEntry("a", "x", 1), HistoryEntry("b", "y", 2))
         val viewModel = viewModel()
         viewModel.setPinned(setOf("a"), true)
         viewModel.delete(setOf("b"))
-        assertEquals(listOf(HistoryEntry("a", "x", 1, pinned = true)), history.entries.value)
+        assertEquals(listOf(HistoryEntry("a", "x", 1, pinned = true)), history.items.value)
     }
 }

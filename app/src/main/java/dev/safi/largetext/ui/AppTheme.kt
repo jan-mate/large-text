@@ -19,3 +19,5 @@ fun AppTheme(content: @Composable () -> Unit) {
         content = content,
     )
 }
+
+val OutlineGrey = Color(0xFF555555)

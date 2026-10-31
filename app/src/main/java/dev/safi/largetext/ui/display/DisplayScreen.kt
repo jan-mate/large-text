@@ -15,13 +15,13 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import dev.safi.largetext.data.AppFont
-import dev.safi.largetext.data.DisplayTheme
+import dev.safi.largetext.data.DisplayColors
 import dev.safi.largetext.data.RotationMode
 
 private const val TAP_AREA_FRACTION = 0.8f
 
 @Composable
-fun DisplayScreen(text: String, font: AppFont, theme: DisplayTheme, rotation: RotationMode, onExit: () -> Unit) {
+fun DisplayScreen(text: String, font: AppFont, colors: DisplayColors, rotation: RotationMode, onExit: () -> Unit) {
     val activity = LocalActivity.current!!
     val view = LocalView.current
     DisposableEffect(rotation) {
@@ -37,7 +37,7 @@ fun DisplayScreen(text: String, font: AppFont, theme: DisplayTheme, rotation: Ro
         }
     }
     Box(Modifier.fillMaxSize()) {
-        DisplayContent(text, font, theme)
+        DisplayContent(text, font, colors)
         Box(
             Modifier
                 .fillMaxSize(TAP_AREA_FRACTION)

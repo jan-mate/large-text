@@ -3,13 +3,15 @@ package dev.safi.largetext.data
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class DataStoreSettingsRepository(private val dataStore: DataStore<Preferences>) : SettingsRepository {
     private val fontKey = stringPreferencesKey("font")
-    private val themeKey = stringPreferencesKey("theme")
+    private val textColorKey = intPreferencesKey("text_color")
+    private val backgroundColorKey = intPreferencesKey("background_color")
     private val rotationKey = stringPreferencesKey("rotation")
     private val lastTextKey = stringPreferencesKey("last_text")
 
@@ -17,7 +19,10 @@ class DataStoreSettingsRepository(private val dataStore: DataStore<Preferences>)
         val defaults = Settings()
         Settings(
             font = preferences[fontKey]?.let(AppFont::valueOf) ?: defaults.font,
-            theme = preferences[themeKey]?.let(DisplayTheme::valueOf) ?: defaults.theme,
+            colors = DisplayColors(
+                text = preferences[textColorKey] ?: defaults.colors.text,
+                background = preferences[backgroundColorKey] ?: defaults.colors.background,
+            ),
             rotation = preferences[rotationKey]?.let(RotationMode::valueOf) ?: defaults.rotation,
             lastText = preferences[lastTextKey] ?: defaults.lastText,
         )
@@ -26,7 +31,8 @@ class DataStoreSettingsRepository(private val dataStore: DataStore<Preferences>)
     override suspend fun save(settings: Settings) {
         dataStore.edit { preferences ->
             preferences[fontKey] = settings.font.name
-            preferences[themeKey] = settings.theme.name
+            preferences[textColorKey] = settings.colors.text
+            preferences[backgroundColorKey] = settings.colors.background
             preferences[rotationKey] = settings.rotation.name
             preferences[lastTextKey] = settings.lastText
         }
