@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -45,6 +47,8 @@ import dev.safi.largetext.data.RotationMode
 import dev.safi.largetext.ui.display.DisplaySurface
 import dev.safi.largetext.ui.display.ScaledToDisplay
 import dev.safi.largetext.ui.display.foreground
+
+private val Grey = Color(0xFF555555)
 
 @Composable
 fun EditorScreen(
@@ -77,7 +81,7 @@ fun EditorScreen(
                     displaySize = displaySize,
                     modifier = Modifier
                         .aspectRatio(displaySize.width.toFloat() / displaySize.height)
-                        .border(1.dp, Color.White),
+                        .border(1.dp, Grey),
                 ) {
                     DisplaySurface(text.text, font, theme) { style, textModifier ->
                         BasicTextField(
@@ -96,7 +100,12 @@ fun EditorScreen(
                     }
                 }
             }
-            Button(onClick = onDisplay, modifier = Modifier.fillMaxWidth().height(88.dp)) {
+            Button(
+                onClick = onDisplay,
+                shape = RectangleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Grey, contentColor = Color.White),
+                modifier = Modifier.fillMaxWidth().height(88.dp),
+            ) {
                 Text("Display", fontSize = 32.sp)
             }
         }

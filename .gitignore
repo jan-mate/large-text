@@ -4,3 +4,6 @@ build/
 local.properties
 .kotlin/
 *.apk
+docs/
+CLAUDE.md
+.claude/

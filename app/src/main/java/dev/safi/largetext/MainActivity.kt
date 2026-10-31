@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -43,7 +44,13 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable<DisplayRoute> {
-                        DisplayScreen(viewModel.text.text, viewModel.font, viewModel.theme, viewModel.rotation)
+                        DisplayScreen(
+                            text = viewModel.text.text,
+                            font = viewModel.font,
+                            theme = viewModel.theme,
+                            rotation = viewModel.rotation,
+                            onExit = dropUnlessResumed { navController.popBackStack() },
+                        )
                     }
                 }
             }
