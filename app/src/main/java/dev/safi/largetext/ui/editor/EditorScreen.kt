@@ -14,12 +14,15 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,20 +86,23 @@ fun EditorScreen(
                         .aspectRatio(displaySize.width.toFloat() / displaySize.height)
                         .border(1.dp, Grey),
                 ) {
-                    DisplaySurface(text.text, font, theme) { style, textModifier ->
-                        BasicTextField(
-                            value = text,
-                            onValueChange = onTextChange,
-                            textStyle = style,
-                            cursorBrush = SolidColor(theme.foreground),
-                            modifier = textModifier
-                                .focusRequester(focusRequester)
-                                .onPreviewKeyEvent {
-                                    val shiftEnter = it.key == Key.Enter && it.isShiftPressed
-                                    if (shiftEnter && it.type == KeyEventType.KeyDown) onDisplay()
-                                    shiftEnter
-                                },
-                        )
+                    val selectionColors = TextSelectionColors(theme.foreground, theme.foreground.copy(alpha = 0.3f))
+                    CompositionLocalProvider(LocalTextSelectionColors provides selectionColors) {
+                        DisplaySurface(text.text, font, theme) { style, textModifier ->
+                            BasicTextField(
+                                value = text,
+                                onValueChange = onTextChange,
+                                textStyle = style,
+                                cursorBrush = SolidColor(theme.foreground),
+                                modifier = textModifier
+                                    .focusRequester(focusRequester)
+                                    .onPreviewKeyEvent {
+                                        val shiftEnter = it.key == Key.Enter && it.isShiftPressed
+                                        if (shiftEnter && it.type == KeyEventType.KeyDown) onDisplay()
+                                        shiftEnter
+                                    },
+                            )
+                        }
                     }
                 }
             }

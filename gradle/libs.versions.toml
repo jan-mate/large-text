@@ -10,6 +10,7 @@ serializationJson = "1.12.0"
 junit = "4.13.2"
 kotest = "6.2.6"
 robolectric = "4.17"
+coroutinesTest = "1.11.0"
 testCore = "1.7.0"
 
 [libraries]
@@ -27,6 +28,7 @@ compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"
 junit = { module = "junit:junit", version.ref = "junit" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "testCore" }
 
 [plugins]
