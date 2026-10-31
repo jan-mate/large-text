@@ -45,7 +45,8 @@ class BinarySearchTextFitterTest {
         checkAll(200, texts, sides, sides) { text, width, height ->
             val whole = wholeWordsOnly.fit(text, width, height)
             val broken = breaksAlways.fit(text, width, height)
-            val expected = if (broken >= whole * 2f) broken else whole
+            val longestWord = text.split(" ", "\n").maxOf { it.length }
+            val expected = if (longestWord >= 8 && broken >= whole * 2f) broken else whole
             assertEquals(expected, fitter.fit(text, width, height), 0f)
         }
     }
@@ -76,6 +77,12 @@ class BinarySearchTextFitterTest {
     @Test
     fun singleWordFillsTheWidth() {
         assertEquals(100f / (0.6f * 5), fitter.fit("hello", 100f, 40f), 0.5f)
+    }
+
+    @Test
+    fun shortWordInANarrowBoxIsNotBroken() {
+        val size = fitter.fit("wow", 100f, 1000f)
+        assertTrue(fits("wow", size, 100f, 1000f, allowBreak = false))
     }
 
     @Test
