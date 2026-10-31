@@ -22,6 +22,7 @@ android {
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        unitTests.all { it.jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED") }
     }
 }
 
@@ -41,4 +42,5 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotest.property)
     testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }
