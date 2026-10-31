@@ -101,8 +101,6 @@ class MainActivity : ComponentActivity() {
                     composable<HistoryRoute> {
                         HistoryScreen(
                             entries = viewModel.history.collectAsStateWithLifecycle().value,
-                            font = viewModel.font,
-                            colors = viewModel.colors,
                             displaySize = rememberDisplaySize(viewModel.rotation),
                             onOpen = { entry ->
                                 viewModel.display(entry)

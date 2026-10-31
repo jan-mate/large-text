@@ -93,6 +93,27 @@ class AppViewModelTest {
     }
 
     @Test
+    fun displayRemembersFontAndColors() {
+        val viewModel = viewModel()
+        viewModel.chooseFont(AppFont.Lora)
+        viewModel.invertColors()
+        viewModel.display()
+        val entry = history.items.value.single()
+        assertEquals(AppFont.Lora, entry.font)
+        assertEquals(DisplayColors.BlackOnWhite, entry.colors)
+    }
+
+    @Test
+    fun displayingFromHistoryUsesItsFontAndColors() {
+        history.items.value = listOf(HistoryEntry("a", "old", 1, false, AppFont.Caveat, DisplayColors.BlackOnWhite))
+        val viewModel = viewModel()
+        viewModel.display(history.items.value[0])
+        assertEquals(AppFont.Caveat, viewModel.font)
+        assertEquals(DisplayColors.BlackOnWhite, viewModel.colors)
+        assertEquals(AppFont.Caveat, repository.settings.value.font)
+    }
+
+    @Test
     fun blankTextIsNotAddedToHistory() {
         val viewModel = viewModel()
         viewModel.changeText(TextFieldValue("  "))

@@ -35,9 +35,15 @@ class DataStoreListRepositoryTest {
 
     @Test
     fun historyUpdatesAreReadBack() = runBlocking {
-        val entries = listOf(HistoryEntry("a", "hej æøå 🐱\nline", 1, pinned = true), HistoryEntry("b", "", 2))
+        val entries = listOf(HistoryEntry("a", "hej æøå 🐱\nline", 1, pinned = true, AppFont.Caveat, DisplayColors.BlackOnWhite), HistoryEntry("b", "", 2))
         history.update { entries }
         assertEquals(entries, history.items.first())
+    }
+
+    @Test
+    fun oldHistoryWithoutFontAndColorsGetsDefaults() = runBlocking {
+        folder.root.resolve("history.json").writeText("""[{"id":"a","text":"hi","createdAt":1,"pinned":true}]""")
+        assertEquals(listOf(HistoryEntry("a", "hi", 1, pinned = true, AppFont.Safi, DisplayColors.WhiteOnBlack)), history.items.first())
     }
 
     @Test

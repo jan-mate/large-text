@@ -26,7 +26,7 @@ class HistoryTest {
     @Test
     fun displayedTextAppearsOnceAndIsNewest() = runBlocking<Unit> {
         checkAll(300, histories, texts) { history, text ->
-            val result = history.withDisplayed(text, now = 5000, ::newId)
+            val result = history.withDisplayed(text, AppFont.Safi, DisplayColors.WhiteOnBlack, now = 5000, ::newId)
             val matching = result.filter { it.text == text }
             assertEquals(1, matching.size)
             assertEquals(5000L, matching.single().createdAt)
@@ -42,7 +42,7 @@ class HistoryTest {
     @Test
     fun redisplayingPinnedKeepsItsPlace() {
         val history = listOf(HistoryEntry("a", "first", 1, pinned = true), HistoryEntry("b", "second", 2, pinned = true))
-        val result = history.withDisplayed("second", now = 9, ::newId)
+        val result = history.withDisplayed("second", AppFont.Safi, DisplayColors.WhiteOnBlack, now = 9, ::newId)
         assertEquals(listOf("a", "b"), result.map { it.id })
         assertEquals(9L, result[1].createdAt)
     }
@@ -56,7 +56,7 @@ class HistoryTest {
     @Test
     fun unpinnedAreCappedAndPinnedNeverExpire() = runBlocking<Unit> {
         checkAll(300, histories, texts) { history, text ->
-            val result = history.withDisplayed(text, now = 5000, ::newId)
+            val result = history.withDisplayed(text, AppFont.Safi, DisplayColors.WhiteOnBlack, now = 5000, ::newId)
             assertTrue(result.count { !it.pinned } <= MAX_UNPINNED)
             assertTrue(result.map { it.id }.containsAll(history.filter { it.pinned }.map { it.id }))
             assertEquals(result.size, result.map { it.text }.toSet().size)
@@ -66,14 +66,25 @@ class HistoryTest {
     @Test
     fun redisplayKeepsIdAndPin() {
         val history = listOf(HistoryEntry("a", "first", 1, pinned = true), HistoryEntry("b", "second", 2))
-        val result = history.withDisplayed("first", now = 9, ::newId)
+        val result = history.withDisplayed("first", AppFont.Safi, DisplayColors.WhiteOnBlack, now = 9, ::newId)
         assertEquals(HistoryEntry("a", "first", 9, pinned = true), result.single { it.text == "first" })
+    }
+
+    @Test
+    fun displayedEntryRemembersFontAndColors() {
+        val history = listOf(HistoryEntry("a", "first", 1, pinned = true), HistoryEntry("b", "second", 2))
+        val pinned = history.withDisplayed("first", AppFont.Lora, DisplayColors.BlackOnWhite, now = 9, ::newId)
+        assertEquals(HistoryEntry("a", "first", 9, true, AppFont.Lora, DisplayColors.BlackOnWhite), pinned[0])
+        val recent = history.withDisplayed("second", AppFont.Caveat, DisplayColors.BlackOnWhite, now = 9, ::newId)
+        assertEquals(HistoryEntry("b", "second", 9, false, AppFont.Caveat, DisplayColors.BlackOnWhite), recent.single { it.id == "b" })
+        val new = history.withDisplayed("third", AppFont.Inter, DisplayColors.BlackOnWhite, now = 9, ::newId)
+        assertEquals(HistoryEntry("id0", "third", 9, false, AppFont.Inter, DisplayColors.BlackOnWhite), new.single { it.text == "third" })
     }
 
     @Test
     fun keepsTheNewestUnpinned() {
         val history = (1..MAX_UNPINNED).map { HistoryEntry("$it", "t$it", (1000 - it).toLong()) }
-        val result = history.withDisplayed("new", now = 5000, ::newId)
+        val result = history.withDisplayed("new", AppFont.Safi, DisplayColors.WhiteOnBlack, now = 5000, ::newId)
         assertEquals(listOf("new") + (1 until MAX_UNPINNED).map { "t$it" }, result.map { it.text })
     }
 

@@ -42,8 +42,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.safi.largetext.data.AppFont
-import dev.safi.largetext.data.DisplayColors
 import dev.safi.largetext.data.HistoryEntry
 import dev.safi.largetext.data.matching
 import dev.safi.largetext.ui.BarButton
@@ -59,8 +57,6 @@ import sh.calvin.reorderable.rememberReorderableLazyGridState
 @Composable
 fun HistoryScreen(
     entries: List<HistoryEntry>,
-    font: AppFont,
-    colors: DisplayColors,
     displaySize: IntSize,
     onOpen: (HistoryEntry) -> Unit,
     onSetPinned: (Set<String>, Boolean) -> Unit,
@@ -120,13 +116,13 @@ fun HistoryScreen(
                                     },
                                 ),
                         ) {
-                            DisplayContent(entry.text, font, colors)
+                            DisplayContent(entry.text, entry.font, entry.colors)
                         }
                     }
                 }
                 if (recent.isNotEmpty()) header("Recent")
                 items(recent, key = { it.id }) { entry ->
-                    RecentCell(entry, entry.id in selected, font, colors, displaySize, onClick) {
+                    RecentCell(entry, entry.id in selected, displaySize, onClick) {
                         selected = selected.toggled(entry.id)
                     }
                 }
@@ -146,8 +142,6 @@ private fun LazyGridScope.header(title: String) {
 private fun RecentCell(
     entry: HistoryEntry,
     isSelected: Boolean,
-    font: AppFont,
-    colors: DisplayColors,
     displaySize: IntSize,
     onClick: (HistoryEntry) -> Unit,
     onLongClick: () -> Unit,
@@ -157,7 +151,7 @@ private fun RecentCell(
         selected = isSelected,
         modifier = Modifier.combinedClickable(onClick = { onClick(entry) }, onLongClick = onLongClick),
     ) {
-        DisplayContent(entry.text, font, colors)
+        DisplayContent(entry.text, entry.font, entry.colors)
     }
 }
 

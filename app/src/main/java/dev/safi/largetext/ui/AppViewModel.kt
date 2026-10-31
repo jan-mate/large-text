@@ -86,12 +86,18 @@ class AppViewModel(
     fun display() {
         val displayed = text.text
         if (displayed.isBlank()) return
+        val displayedFont = font
+        val displayedColors = colors
         viewModelScope.launch {
-            historyRepository.update { it.withDisplayed(displayed, clock(), { UUID.randomUUID().toString() }) }
+            historyRepository.update {
+                it.withDisplayed(displayed, displayedFont, displayedColors, clock(), { UUID.randomUUID().toString() })
+            }
         }
     }
 
     fun display(entry: HistoryEntry) {
+        font = entry.font
+        colors = entry.colors
         changeText(TextFieldValue(entry.text, TextRange(0, entry.text.length)))
         display()
     }

@@ -2,10 +2,17 @@ package dev.safi.largetext.data
 
 const val MAX_UNPINNED = 200
 
-fun List<HistoryEntry>.withDisplayed(text: String, now: Long, newId: () -> String): List<HistoryEntry> {
+fun List<HistoryEntry>.withDisplayed(
+    text: String,
+    font: AppFont,
+    colors: DisplayColors,
+    now: Long,
+    newId: () -> String,
+): List<HistoryEntry> {
     val existing = find { it.text == text }
-    if (existing?.pinned == true) return map { if (it.id == existing.id) it.copy(createdAt = now) else it }
-    val entry = existing?.copy(createdAt = now) ?: HistoryEntry(newId(), text, now)
+    val updated = existing?.copy(createdAt = now, font = font, colors = colors)
+    if (updated?.pinned == true) return map { if (it.id == updated.id) updated else it }
+    val entry = updated ?: HistoryEntry(newId(), text, now, font = font, colors = colors)
     val (pinned, unpinned) = (listOf(entry) + filter { it.text != text }).partition { it.pinned }
     return pinned + unpinned.take(MAX_UNPINNED)
 }
