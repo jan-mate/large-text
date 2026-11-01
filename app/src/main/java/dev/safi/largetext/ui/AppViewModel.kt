@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+private const val EXIT_HINT_DISPLAYS = 3
+
 class AppViewModel(
     private val settingsRepository: SettingsRepository,
     private val historyRepository: ListRepository<HistoryEntry>,
@@ -42,6 +44,9 @@ class AppViewModel(
         private set
     var rotation by mutableStateOf(Settings().rotation)
         private set
+    private var displayCount = 0
+    val showExitHint: Boolean
+        get() = displayCount <= EXIT_HINT_DISPLAYS
 
     init {
         viewModelScope.launch {
@@ -49,6 +54,7 @@ class AppViewModel(
             font = settings.font
             colors = settings.colors
             rotation = settings.rotation
+            displayCount = settings.displayCount
             text = TextFieldValue(settings.lastText, TextRange(0, settings.lastText.length))
         }
     }
@@ -86,6 +92,8 @@ class AppViewModel(
     fun display() {
         val displayed = text.text
         if (displayed.isBlank()) return
+        displayCount++
+        save()
         val displayedFont = font
         val displayedColors = colors
         viewModelScope.launch {
@@ -115,7 +123,7 @@ class AppViewModel(
     }
 
     private fun save() {
-        val settings = Settings(font, colors, rotation, text.text)
+        val settings = Settings(font, colors, rotation, text.text, displayCount)
         viewModelScope.launch { settingsRepository.save(settings) }
     }
 }

@@ -24,6 +24,7 @@ data class Settings(
     val colors: DisplayColors = DisplayColors.WhiteOnBlack,
     val rotation: RotationMode = RotationMode.Auto,
     val lastText: String = "",
+    val displayCount: Int = 0,
 )
 
 fun <T : Enum<T>> T.next(values: Array<T>): T = values[(ordinal + 1) % values.size]

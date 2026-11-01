@@ -2,7 +2,19 @@ package dev.safi.largetext.ui.display
 
 import android.content.pm.ActivityInfo
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -19,9 +31,10 @@ import dev.safi.largetext.data.DisplayColors
 import dev.safi.largetext.data.RotationMode
 
 private const val TAP_AREA_FRACTION = 0.8f
+private const val EXIT_HINT_MILLIS = 2500L
 
 @Composable
-fun DisplayScreen(text: String, font: AppFont, colors: DisplayColors, rotation: RotationMode, onExit: () -> Unit) {
+fun DisplayScreen(text: String, font: AppFont, colors: DisplayColors, rotation: RotationMode, showExitHint: Boolean, onExit: () -> Unit) {
     val activity = LocalActivity.current!!
     val view = LocalView.current
     DisposableEffect(rotation) {
@@ -44,6 +57,19 @@ fun DisplayScreen(text: String, font: AppFont, colors: DisplayColors, rotation: 
                 .align(Alignment.Center)
                 .pointerInput(onExit) { detectTapGestures { onExit() } },
         )
+        if (showExitHint) ExitHint(colors, Modifier.align(Alignment.BottomCenter))
+    }
+}
+
+@Composable
+private fun ExitHint(colors: DisplayColors, modifier: Modifier) {
+    var visible by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        delay(EXIT_HINT_MILLIS)
+        visible = false
+    }
+    AnimatedVisibility(visible, modifier.padding(32.dp), exit = fadeOut()) {
+        Text("Tap to close", color = colors.textColor.copy(alpha = 0.6f), fontSize = 20.sp)
     }
 }
 

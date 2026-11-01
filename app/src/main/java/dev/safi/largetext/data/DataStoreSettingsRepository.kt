@@ -14,6 +14,7 @@ class DataStoreSettingsRepository(private val dataStore: DataStore<Preferences>)
     private val backgroundColorKey = intPreferencesKey("background_color")
     private val rotationKey = stringPreferencesKey("rotation")
     private val lastTextKey = stringPreferencesKey("last_text")
+    private val displayCountKey = intPreferencesKey("display_count")
 
     override val settings: Flow<Settings> = dataStore.data.map { preferences ->
         val defaults = Settings()
@@ -25,6 +26,7 @@ class DataStoreSettingsRepository(private val dataStore: DataStore<Preferences>)
             ),
             rotation = preferences[rotationKey]?.let(RotationMode::valueOf) ?: defaults.rotation,
             lastText = preferences[lastTextKey] ?: defaults.lastText,
+            displayCount = preferences[displayCountKey] ?: defaults.displayCount,
         )
     }
 
@@ -35,6 +37,7 @@ class DataStoreSettingsRepository(private val dataStore: DataStore<Preferences>)
             preferences[backgroundColorKey] = settings.colors.background
             preferences[rotationKey] = settings.rotation.name
             preferences[lastTextKey] = settings.lastText
+            preferences[displayCountKey] = settings.displayCount
         }
     }
 }

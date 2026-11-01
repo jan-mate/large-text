@@ -52,6 +52,8 @@ import dev.safi.largetext.ui.display.rememberDisplaySize
 import dev.safi.largetext.ui.display.textColor
 import dev.safi.largetext.ui.OutlineGrey
 
+private const val PLACEHOLDER = "Type here"
+
 @Composable
 fun EditorScreen(
     text: TextFieldValue,
@@ -86,12 +88,18 @@ fun EditorScreen(
                 ) {
                     val selectionColors = TextSelectionColors(colors.textColor, colors.textColor.copy(alpha = 0.3f))
                     CompositionLocalProvider(LocalTextSelectionColors provides selectionColors) {
-                        DisplaySurface(text.text, font, colors) { style, textModifier ->
+                        DisplaySurface(text.text.ifEmpty { PLACEHOLDER }, font, colors) { style, textModifier ->
                             BasicTextField(
                                 value = text,
                                 onValueChange = onTextChange,
                                 textStyle = style,
                                 cursorBrush = SolidColor(colors.textColor),
+                                decorationBox = { field ->
+                                    Box(contentAlignment = Alignment.Center) {
+                                        if (text.text.isEmpty()) Text(PLACEHOLDER, style = style.copy(color = colors.textColor.copy(alpha = 0.3f)))
+                                        field()
+                                    }
+                                },
                                 modifier = textModifier
                                     .focusRequester(focusRequester)
                                     .onPreviewKeyEvent {

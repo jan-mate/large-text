@@ -34,7 +34,7 @@ class DataStoreSettingsRepositoryTest {
 
     @Test
     fun savedSettingsAreReadBack() = runBlocking {
-        val settings = Settings(AppFont.Caveat, DisplayColors(0xFFFFFF00.toInt(), 0xFF0000FF.toInt()), RotationMode.Portrait, "hej æøå 🐱")
+        val settings = Settings(AppFont.Caveat, DisplayColors(0xFFFFFF00.toInt(), 0xFF0000FF.toInt()), RotationMode.Portrait, "hej æøå 🐱", displayCount = 7)
         repository.save(settings)
         assertEquals(settings, repository.settings.first())
     }

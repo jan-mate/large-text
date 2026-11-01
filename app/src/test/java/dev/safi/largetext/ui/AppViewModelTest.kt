@@ -138,4 +138,22 @@ class AppViewModelTest {
         viewModel.delete(setOf("b"))
         assertEquals(listOf(HistoryEntry("a", "x", 1, pinned = true)), history.items.value)
     }
+
+    @Test
+    fun exitHintShowsOnTheFirstThreeDisplaysOnly() {
+        val viewModel = viewModel()
+        val shown = (1..5).map {
+            viewModel.display()
+            viewModel.showExitHint
+        }
+        assertEquals(listOf(true, true, true, false, false), shown)
+        assertEquals(5, repository.settings.value.displayCount)
+    }
+
+    @Test
+    fun displayCountIsLoaded() {
+        val viewModel = viewModel(FakeSettingsRepository(Settings(lastText = "saved", displayCount = 3)))
+        viewModel.display()
+        assertEquals(false, viewModel.showExitHint)
+    }
 }

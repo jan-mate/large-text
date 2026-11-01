@@ -120,6 +120,7 @@ fun HistoryScreen(
                         }
                     }
                 }
+                if (pinned.isEmpty() && recent.isEmpty()) header(if (entries.isEmpty()) "Nothing yet" else "No matches")
                 if (recent.isNotEmpty()) header("Recent")
                 items(recent, key = { it.id }) { entry ->
                     RecentCell(entry, entry.id in selected, displaySize, onClick) {

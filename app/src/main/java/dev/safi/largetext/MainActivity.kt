@@ -1,5 +1,6 @@
 package dev.safi.largetext
 
+import android.widget.Toast
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -93,7 +94,10 @@ class MainActivity : ComponentActivity() {
                                     onOpenHistory = { navController.navigate(HistoryRoute) },
                                     onOpenFonts = { navController.navigate(FontRoute) },
                                     onOpenColors = { navController.navigate(ColorRoute) },
-                                    onCycleRotation = viewModel::cycleRotation,
+                                    onCycleRotation = {
+                                        viewModel.cycleRotation()
+                                        Toast.makeText(this@MainActivity, "Rotation: ${viewModel.rotation.name}", Toast.LENGTH_SHORT).show()
+                                    },
                                 )
                             },
                         )
@@ -144,6 +148,7 @@ class MainActivity : ComponentActivity() {
                             font = viewModel.font,
                             colors = viewModel.colors,
                             rotation = viewModel.rotation,
+                            showExitHint = viewModel.showExitHint,
                             onExit = dropUnlessResumed { navController.popBackStack() },
                         )
                     }
