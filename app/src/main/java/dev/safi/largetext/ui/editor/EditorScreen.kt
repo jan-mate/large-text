@@ -76,7 +76,7 @@ fun EditorScreen(
 
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
-            Modifier.safeDrawingPadding().imePadding().padding(12.dp),
+            Modifier.safeDrawingPadding().imePadding().padding(start = 12.dp, top = 12.dp, end = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -112,7 +112,7 @@ fun EditorScreen(
                     }
                 }
             }
-            Row(Modifier.fillMaxWidth().height(88.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().height(72.dp), verticalAlignment = Alignment.CenterVertically) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp)) { controls() }
                 TextButton(
                     onClick = onDisplay,
