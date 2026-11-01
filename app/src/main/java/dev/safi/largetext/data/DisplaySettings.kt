@@ -20,7 +20,7 @@ enum class AppFont(val displayName: String) {
 enum class RotationMode { Auto, Landscape, Portrait }
 
 data class Settings(
-    val font: AppFont = AppFont.Safi,
+    val font: AppFont = AppFont.Inter,
     val colors: DisplayColors = DisplayColors.WhiteOnBlack,
     val rotation: RotationMode = RotationMode.Auto,
     val lastText: String = "",

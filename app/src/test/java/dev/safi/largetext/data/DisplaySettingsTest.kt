@@ -15,9 +15,9 @@ class DisplaySettingsTest {
     }
 
     @Test
-    fun defaultsAreAutoRotationSafiAndWhiteOnBlack() {
+    fun defaultsAreAutoRotationInterAndWhiteOnBlack() {
         assertEquals(RotationMode.Auto, Settings().rotation)
-        assertEquals(AppFont.Safi, Settings().font)
+        assertEquals(AppFont.Inter, Settings().font)
         assertEquals(DisplayColors(0xFFFFFFFF.toInt(), 0xFF000000.toInt()), Settings().colors)
     }
 

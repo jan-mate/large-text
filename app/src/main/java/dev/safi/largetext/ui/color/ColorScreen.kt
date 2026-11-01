@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
@@ -59,8 +58,10 @@ import sh.calvin.reorderable.rememberReorderableLazyGridState
 
 private val swatches = listOf(
     0xFFFFFFFF, 0xFF000000, 0xFF808080, 0xFFE53935, 0xFFFB8C00, 0xFFFFEB3B,
-    0xFF43A047, 0xFF00BCD4, 0xFF1E88E5, 0xFF8E24AA, 0xFFEC407A, 0xFF6D4C41,
+    0xFF43A047, 0xFF00BCD4, 0xFF1E88E5, 0xFF8E24AA, 0xFFEC407A,
 ).map { it.toInt() }
+
+private const val SWATCHES_PER_ROW = 6
 
 private enum class Target { Text, Background }
 
@@ -161,27 +162,35 @@ private fun LazyGridScope.fullWidth(key: String, content: @Composable () -> Unit
 
 @Composable
 private fun SwatchRow(title: String, current: Int, onChoose: (Int) -> Unit, onCustom: () -> Unit) {
+    val cells: List<Int?> = swatches + null
     Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(title, fontSize = 20.sp)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            swatches.forEach { swatch ->
-                Swatch(Color(swatch), chosen = swatch == current) { onChoose(swatch) }
-            }
-            Box(
-                Modifier.size(44.dp).border(1.dp, OutlineGrey, CircleShape).clickable(onClick = onCustom),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(Icons.Outlined.Colorize, contentDescription = "Custom $title")
+        cells.chunked(SWATCHES_PER_ROW).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                row.forEach { swatch ->
+                    val cell = Modifier.weight(1f).aspectRatio(1f)
+                    if (swatch == null) CustomColorButton(title, onCustom, cell)
+                    else Swatch(Color(swatch), chosen = swatch == current, cell) { onChoose(swatch) }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun Swatch(color: Color, chosen: Boolean, onClick: () -> Unit) {
+private fun CustomColorButton(title: String, onClick: () -> Unit, modifier: Modifier) {
     Box(
-        Modifier
-            .size(44.dp)
+        modifier.padding(5.dp).border(1.dp, OutlineGrey, CircleShape).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(Icons.Outlined.Colorize, contentDescription = "Custom $title")
+    }
+}
+
+@Composable
+private fun Swatch(color: Color, chosen: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    Box(
+        modifier
             .border(2.dp, if (chosen) Color.White else Color.Transparent, CircleShape)
             .padding(5.dp)
             .background(color, CircleShape)
