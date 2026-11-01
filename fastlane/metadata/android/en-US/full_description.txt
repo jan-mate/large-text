@@ -1,0 +1,12 @@
+Type text, tap Display, and it fills the whole screen as large as possible.
+
+<ul>
+<li>Type directly into a live preview of the display.</li>
+<li>Text is as large as fits, without breaking words when possible.</li>
+<li>Tap the screen or go back to close the display.</li>
+<li>14 fonts.</li>
+<li>Any text and background color, with pinned color presets.</li>
+<li>Rotation: auto, landscape or portrait.</li>
+<li>Searchable history. Pin, delete and reorder entries.</li>
+<li>No permissions, no tracking, works offline.</li>
+</ul>

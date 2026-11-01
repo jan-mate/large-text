@@ -1,0 +1,6 @@
+* Colors in an even grid
+* Inter is the default font
+* "Tap to close" hint on the first displays
+* "Type here" placeholder
+* Rotation popup
+* Buttons closer to the keyboard
